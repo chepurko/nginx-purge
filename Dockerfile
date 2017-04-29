@@ -39,4 +39,4 @@ RUN cd /tmp/nginx && \
 
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/conf.d/wp.conf /etc/nginx/conf.d/default.conf
-COPY nginx/conf.d/security.conf /etc/nginx/conf.d/security.conf
+COPY nginx/global/security.conf /etc/nginx/global/security.conf
