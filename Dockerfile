@@ -36,3 +36,5 @@ RUN cd /tmp/nginx && \
     /bin/sh -c "./configure ${BASE_CONFIGURE_ARGS} --add-module=/tmp/ngx_cache_purge" && \
     make && make install && \
     rm -rf /tmp/nginx*
+
+COPY nginx.conf /etc/nginx/nginx.conf
