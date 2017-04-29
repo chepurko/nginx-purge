@@ -1,6 +1,6 @@
-FROM nginx:1.11
+FROM nginx:1.12
 
-MAINTAINER David Galoyan <davojan@gmail.com>
+LABEL maintainer "tech@abaranovskaya.com"
 
 ENV NGX_CACHE_PURGE_VERSION=2.4.1
 
