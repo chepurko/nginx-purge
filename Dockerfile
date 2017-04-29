@@ -37,4 +37,4 @@ RUN cd /tmp/nginx && \
     make && make install && \
     rm -rf /tmp/nginx*
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
