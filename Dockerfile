@@ -8,10 +8,12 @@ ENV NGX_CACHE_PURGE_VERSION=2.4.1
 RUN apt-get update && \
     apt-get install --no-install-recommends --no-install-suggests -y \
       wget \
+      ca-certificates \
       build-essential \
       libssl-dev \
       libpcre3 \
-      libpcre3-dev && \
+      libpcre3-dev \
+      zlib1g-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
