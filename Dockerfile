@@ -13,7 +13,7 @@ ENV \
 RUN apt-get update && \
     apt-get install --no-install-recommends --no-install-suggests -y \
       wget \
-      gnupg2 \
+      gnupg2 dirmngr \
       ca-certificates \
       build-essential \
       libssl-dev \
@@ -35,13 +35,13 @@ RUN NGINX_VERSION=`nginx -V 2>&1 | grep "nginx version" | awk -F/ '{ print $2}'`
     wget https://github.com/nginx-modules/ngx_cache_purge/archive/$NGX_CACHE_PURGE_VERSION.tar.gz \
          -O ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz && \
          
-    wget https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz
+    wget https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz \
          -O naxsi-$NAXSI_VERSION.tar.gz && \
-    wget https://github.com/nbs-system/naxsi/releases/download/$NAXSI_VERSION/naxsi-$NAXSI_VERSION.tar.gz.asc $$ \
+    wget https://github.com/nbs-system/naxsi/releases/download/$NAXSI_VERSION/naxsi-$NAXSI_VERSION.tar.gz.asc && \
     gpg2 --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys 251A28DE2685AED4 && \
-    gpg2 --verify ${NAXSI_VERSION}.tar.gz.asc ${NAXSI_VERSION}.tar.gz && \
+    gpg2 --verify naxsi-${NAXSI_VERSION}.tar.gz.asc naxsi-${NAXSI_VERSION}.tar.gz && \
     
-    rm -r "$GNUPGHOME" nginx-${NGINX_VERSION}.tar.gz.asc ${NAXSI_VERSION}.tar.gz.asc && \
+    rm -r "$GNUPGHOME" nginx-${NGINX_VERSION}.tar.gz.asc naxsi-${NAXSI_VERSION}.tar.gz.asc && \
     
     tar -xf nginx-$NGINX_VERSION.tar.gz && \
     mv nginx-$NGINX_VERSION nginx && \
@@ -49,11 +49,16 @@ RUN NGINX_VERSION=`nginx -V 2>&1 | grep "nginx version" | awk -F/ '{ print $2}'`
     
     tar -xf ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz && \
     mv ngx_cache_purge-$NGX_CACHE_PURGE_VERSION ngx_cache_purge && \
-    rm ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz
+    rm ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz && \
     
     tar -xf naxsi-$NAXSI_VERSION.tar.gz && \
     mv naxsi-$NAXSI_VERSION naxsi && \
-    rm naxsi-$NAXSI_VERSION.tar.gz
+    rm naxsi-$NAXSI_VERSION.tar.gz && \
+
+    apt-get purge -y gnupg2 dirmngr && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
     
 # configure and build
 RUN cd /tmp/nginx && \
