@@ -2,12 +2,18 @@ FROM nginx:1.12
 
 LABEL maintainer "tech@abaranovskaya.com"
 
-ENV NGX_CACHE_PURGE_VERSION=2.4.1
+ENV \
+    HOME=/root \
+    GNUPGHOME=/root/.gnupg \
+    DEBIAN_FRONTEND=noninteractive \
+    NGX_CACHE_PURGE_VERSION=2.4.1 \
+    NAXSI_VERSION=0.55.3
 
 # Install basic packages and build tools
 RUN apt-get update && \
     apt-get install --no-install-recommends --no-install-suggests -y \
       wget \
+      gnupg2 \
       ca-certificates \
       build-essential \
       libssl-dev \
@@ -20,19 +26,39 @@ RUN apt-get update && \
 # download and extract sources
 RUN NGINX_VERSION=`nginx -V 2>&1 | grep "nginx version" | awk -F/ '{ print $2}'` && \
     cd /tmp && \
-    wget http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
+    wget https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
+    wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz.asc && \
+    export GNUPGHOME="$(mktemp -d)" && \
+    gpg2 --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys 520A9993A1C052F8 && \
+    gpg2 --verify nginx-${NGINX_VERSION}.tar.gz.asc nginx-${NGINX_VERSION}.tar.gz && \
+  
     wget https://github.com/nginx-modules/ngx_cache_purge/archive/$NGX_CACHE_PURGE_VERSION.tar.gz \
          -O ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz && \
+         
+    wget https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz
+         -O naxsi-$NAXSI_VERSION.tar.gz && \
+    wget https://github.com/nbs-system/naxsi/releases/download/$NAXSI_VERSION/naxsi-$NAXSI_VERSION.tar.gz.asc $$ \
+    gpg2 --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys 251A28DE2685AED4 && \
+    gpg2 --verify ${NAXSI_VERSION}.tar.gz.asc ${NAXSI_VERSION}.tar.gz && \
+    
+    rm -r "$GNUPGHOME" nginx-${NGINX_VERSION}.tar.gz.asc ${NAXSI_VERSION}.tar.gz.asc && \
+    
     tar -xf nginx-$NGINX_VERSION.tar.gz && \
     mv nginx-$NGINX_VERSION nginx && \
     rm nginx-$NGINX_VERSION.tar.gz && \
+    
     tar -xf ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz && \
     mv ngx_cache_purge-$NGX_CACHE_PURGE_VERSION ngx_cache_purge && \
     rm ngx_cache_purge-$NGX_CACHE_PURGE_VERSION.tar.gz
-
+    
+    tar -xf naxsi-$NAXSI_VERSION.tar.gz && \
+    mv naxsi-$NAXSI_VERSION naxsi && \
+    rm naxsi-$NAXSI_VERSION.tar.gz
+    
 # configure and build
 RUN cd /tmp/nginx && \
     BASE_CONFIGURE_ARGS=`nginx -V 2>&1 | grep "configure arguments" | cut -d " " -f 3-` && \
-    /bin/sh -c "./configure ${BASE_CONFIGURE_ARGS} --add-module=/tmp/ngx_cache_purge" && \
+    /bin/sh -c "./configure --add-module=/tmp/naxsi/naxsi_src --add-module=/tmp/ngx_cache_purge \
+        ${BASE_CONFIGURE_ARGS}" && \
     make && make install && \
     rm -rf /tmp/nginx*
