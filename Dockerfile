@@ -1,4 +1,4 @@
-FROM nginx:1.11
+FROM nginx:1.11.6
 
 LABEL maintainer "tech@abaranovskaya.com"
 
