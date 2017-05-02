@@ -27,9 +27,9 @@ RUN apt-get update && \
 RUN NGINX_VERSION=`nginx -V 2>&1 | grep "nginx version" | awk -F/ '{ print $2}'` && \
     cd /tmp && \
     wget https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz && \
-    wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz.asc && \
+    wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz.asc && \
     export GNUPGHOME="$(mktemp -d)" && \
-    gpg2 --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys 520A9993A1C052F8 && \
+    gpg2 --keyserver hkps.pool.sks-keyservers.net --recv-keys 520A9993A1C052F8 && \
     gpg2 --verify nginx-${NGINX_VERSION}.tar.gz.asc nginx-${NGINX_VERSION}.tar.gz && \
   
     wget https://github.com/nginx-modules/ngx_cache_purge/archive/$NGX_CACHE_PURGE_VERSION.tar.gz \
@@ -38,7 +38,7 @@ RUN NGINX_VERSION=`nginx -V 2>&1 | grep "nginx version" | awk -F/ '{ print $2}'`
     wget https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz \
          -O naxsi-$NAXSI_VERSION.tar.gz && \
     wget https://github.com/nbs-system/naxsi/releases/download/$NAXSI_VERSION/naxsi-$NAXSI_VERSION.tar.gz.asc && \
-    gpg2 --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys 251A28DE2685AED4 && \
+    gpg2 --keyserver hkps.pool.sks-keyservers.net --recv-keys 251A28DE2685AED4 && \
     gpg2 --verify naxsi-${NAXSI_VERSION}.tar.gz.asc naxsi-${NAXSI_VERSION}.tar.gz && \
     
     rm -r "$GNUPGHOME" nginx-${NGINX_VERSION}.tar.gz.asc naxsi-${NAXSI_VERSION}.tar.gz.asc && \
