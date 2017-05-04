@@ -63,7 +63,7 @@ RUN NGINX_VERSION=`nginx -V 2>&1 | grep "nginx version" | awk -F/ '{ print $2}'`
 # configure and build
 RUN cd /tmp/nginx && \
     BASE_CONFIGURE_ARGS=`nginx -V 2>&1 | grep "configure arguments" | cut -d " " -f 3-` && \
-    /bin/sh -c "./configure --add-module=/tmp/naxsi/naxsi_src --add-module=/tmp/ngx_cache_purge \
+    /bin/sh -c "./configure --with-debug --add-module=/tmp/naxsi/naxsi_src --add-module=/tmp/ngx_cache_purge \
         ${BASE_CONFIGURE_ARGS}" && \
     make && make install && \
     rm -rf /tmp/nginx*
